@@ -1,0 +1,23 @@
+{
+    "dataset": "features_combined.csv",
+    "samples": 5555,
+    "features": [
+        "ear",
+        "mar",
+        "jaw_ratio",
+        "brightness"
+    ],
+    "accuracy": 0.918091809180918,
+    "precision_weighted": 0.9180445460199234,
+    "recall_weighted": 0.918091809180918,
+    "f1_weighted": 0.9180331103467205,
+    "subjects": [
+        "S01",
+        "S02"
+    ],
+    "classes": [
+        "attentive",
+        "drowsy",
+        "yawning"
+    ]
+}

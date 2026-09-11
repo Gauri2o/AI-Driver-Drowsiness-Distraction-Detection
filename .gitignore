@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local datasets / large raw files
+dataset/*
+data/raw/
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.avi
+
+# Runtime / temporary files
+*.log
+*.tmp
+
+# Local backups / old experiments
+archive/
+*_backup.py
+*_backup.html
+main_working.py
+main_final_working.py
+test_*.py
+*_test.py
+camera_test.py
+check_mediapipe.py
+collect_s02py.py
+
+# Python-generated caches
+.pytest_cache/
+
+# Keep trained model/results tracked
+!driver_behavior_model_combined.pkl
+!model_metrics_combined.json
+!feature_importance_combined.csv
+!confusion_matrix_combined.csv
+
+!dataset/README.md
+archive/

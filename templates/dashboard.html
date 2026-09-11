@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Driver Safety AI Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:"Segoe UI",Arial,sans-serif;
+}
+
+body{
+    background:
+        radial-gradient(circle at 90% 0%,#172554 0%,transparent 30%),
+        radial-gradient(circle at 0% 100%,#083344 0%,transparent 28%),
+        #070d18;
+    color:#f8fafc;
+    min-height:100vh;
+}
+
+.header{
+    height:76px;
+    padding:0 35px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(15,23,42,.94);
+    border-bottom:1px solid #263449;
+    position:sticky;
+    top:0;
+    z-index:100;
+    backdrop-filter:blur(12px);
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:13px;
+}
+
+.brand-icon{
+    width:43px;
+    height:43px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    background:linear-gradient(135deg,#2563eb,#06b6d4);
+    font-size:22px;
+}
+
+.brand h1{
+    font-size:21px;
+}
+
+.brand p{
+    color:#94a3b8;
+    font-size:11px;
+    margin-top:2px;
+}
+
+.live{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    border-radius:20px;
+    background:rgba(34,197,94,.10);
+    border:1px solid rgba(34,197,94,.30);
+    color:#4ade80;
+    font-size:12px;
+    font-weight:700;
+}
+
+.live-dot{
+    width:8px;
+    height:8px;
+    background:#22c55e;
+    border-radius:50%;
+    box-shadow:0 0 10px #22c55e;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    padding:30px;
+}
+
+.main-status{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(
+        135deg,
+        rgba(30,41,59,.95),
+        rgba(15,23,42,.95)
+    );
+    border:1px solid #334155;
+    border-radius:20px;
+    padding:30px;
+    text-align:center;
+    margin-bottom:22px;
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
+}
+
+.status-label{
+    color:#94a3b8;
+    font-size:11px;
+    letter-spacing:2px;
+    margin-bottom:10px;
+}
+
+.main-status h2{
+    font-size:37px;
+    margin-bottom:10px;
+}
+
+.risk{
+    color:#94a3b8;
+    font-size:14px;
+}
+
+.risk span{
+    font-weight:800;
+}
+
+.section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:10px 0 13px;
+}
+
+.section-title h2{
+    font-size:15px;
+}
+
+.section-title span{
+    color:#64748b;
+    font-size:11px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:24px;
+}
+
+.card{
+    background:rgba(30,41,59,.78);
+    border:1px solid #334155;
+    padding:21px;
+    border-radius:16px;
+    transition:.25s;
+}
+
+.card:hover{
+    transform:translateY(-3px);
+    border-color:#475569;
+}
+
+.card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+.card h3{
+    color:#94a3b8;
+    font-size:11px;
+}
+
+.icon{
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:9px;
+    background:#172033;
+}
+
+.value{
+    font-size:27px;
+    font-weight:750;
+}
+
+.status-sub{
+    color:#64748b;
+    font-size:10px;
+    margin-top:5px;
+}
+
+.analytics{
+    display:grid;
+    grid-template-columns:1.3fr 1fr 1fr 1fr;
+    gap:16px;
+    margin-bottom:24px;
+}
+
+.analytics-card{
+    background:rgba(30,41,59,.78);
+    border:1px solid #334155;
+    border-radius:16px;
+    padding:20px;
+}
+
+.analytics-title{
+    color:#94a3b8;
+    font-size:11px;
+    margin-bottom:12px;
+}
+
+.analytics-value{
+    font-size:26px;
+    font-weight:750;
+}
+
+.analytics-small{
+    color:#64748b;
+    font-size:10px;
+    margin-top:4px;
+}
+
+.fatigue-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.fatigue-header span{
+    font-weight:700;
+}
+
+.progress{
+    height:9px;
+    background:#0f172a;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid #263449;
+}
+
+.progress-bar{
+    width:0%;
+    height:100%;
+    border-radius:10px;
+    transition:.4s ease;
+}
+
+.status-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+}
+
+.status-box{
+    background:rgba(30,41,59,.72);
+    padding:19px;
+    border-radius:15px;
+    border:1px solid #334155;
+    min-height:105px;
+}
+
+.status-box h3{
+    color:#94a3b8;
+    font-size:11px;
+    margin-bottom:12px;
+}
+
+.status-value{
+    font-size:17px;
+    font-weight:750;
+}
+
+.event-panel{
+    margin-top:24px;
+    background:rgba(15,23,42,.82);
+    border:1px solid #334155;
+    border-radius:16px;
+    padding:20px;
+}
+
+.event-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.event-header h2{
+    font-size:15px;
+}
+
+.event-header span{
+    color:#64748b;
+    font-size:10px;
+}
+
+.event{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px;
+    border-radius:10px;
+    background:#111827;
+    border:1px solid #1e293b;
+}
+
+.event-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#22c55e;
+}
+
+.event-text{
+    font-size:12px;
+}
+
+.event-time{
+    margin-left:auto;
+    color:#64748b;
+    font-size:10px;
+}
+
+.normal{
+    color:#4ade80!important;
+}
+
+.warning{
+    color:#fbbf24!important;
+}
+
+.danger{
+    color:#f87171!important;
+}
+
+/* =====================================================
+   ML ANALYTICS
+===================================================== */
+
+.ml-section{
+    margin-top:30px;
+}
+
+.ml-metrics{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:18px;
+}
+
+.metric-card{
+    background:rgba(30,41,59,.78);
+    border:1px solid #334155;
+    border-radius:16px;
+    padding:22px;
+    text-align:center;
+}
+
+.metric-card h3{
+    color:#94a3b8;
+    font-size:11px;
+    letter-spacing:1px;
+    margin-bottom:10px;
+}
+
+.metric-value{
+    font-size:30px;
+    font-weight:800;
+}
+
+.metric-label{
+    color:#64748b;
+    font-size:10px;
+    margin-top:5px;
+}
+
+.charts-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-bottom:18px;
+}
+
+.chart-card{
+    background:rgba(30,41,59,.78);
+    border:1px solid #334155;
+    border-radius:16px;
+    padding:20px;
+    min-height:350px;
+}
+
+.chart-card.full{
+    grid-column:1 / -1;
+}
+
+.chart-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.chart-title h3{
+    font-size:14px;
+}
+
+.chart-title span{
+    color:#64748b;
+    font-size:10px;
+}
+
+.chart-container{
+    position:relative;
+    height:280px;
+}
+
+.confusion-wrapper{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:280px;
+}
+
+.confusion-table{
+    border-collapse:separate;
+    border-spacing:6px;
+    text-align:center;
+}
+
+.confusion-table th{
+    color:#94a3b8;
+    font-size:11px;
+    padding:8px;
+}
+
+.confusion-table td{
+    width:80px;
+    height:58px;
+    border-radius:8px;
+    background:#172033;
+    font-size:17px;
+    font-weight:700;
+}
+
+.confusion-table td.high{
+    background:#14532d;
+    color:#86efac;
+}
+
+.confusion-table td.medium{
+    background:#713f12;
+    color:#fde68a;
+}
+
+.confusion-table td.low{
+    background:#1e293b;
+    color:#94a3b8;
+}
+
+.ai-panel{
+    background:
+        linear-gradient(
+            135deg,
+            rgba(37,99,235,.12),
+            rgba(6,182,212,.08)
+        );
+    border:1px solid #334155;
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:24px;
+}
+
+.ai-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:18px;
+}
+
+.ai-item{
+    background:rgba(15,23,42,.55);
+    border:1px solid #263449;
+    border-radius:12px;
+    padding:15px;
+}
+
+.ai-item h3{
+    color:#94a3b8;
+    font-size:10px;
+    margin-bottom:8px;
+}
+
+.ai-value{
+    font-size:18px;
+    font-weight:750;
+}
+
+.footer{
+    text-align:center;
+    margin-top:30px;
+    padding:20px 0;
+    border-top:1px solid #1e293b;
+    color:#64748b;
+    font-size:10px;
+}
+
+@media(max-width:1100px){
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .analytics{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .status-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .ml-metrics{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:750px){
+
+    .charts-grid{
+        grid-template-columns:1fr;
+    }
+
+    .chart-card.full{
+        grid-column:auto;
+    }
+
+    .ai-row{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:650px){
+
+    .header{
+        padding:0 15px;
+    }
+
+    .brand p{
+        display:none;
+    }
+
+    .brand h1{
+        font-size:16px;
+    }
+
+    .container{
+        padding:17px;
+    }
+
+    .cards,
+    .analytics,
+    .status-grid,
+    .ml-metrics{
+        grid-template-columns:1fr;
+    }
+
+    .main-status h2{
+        font-size:28px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="brand">
+
+        <div class="brand-icon">🚗</div>
+
+        <div>
+            <h1>Driver Safety AI</h1>
+            <p>
+                Intelligent Drowsiness & Distraction Monitoring
+            </p>
+        </div>
+
+    </div>
+
+    <div class="live">
+        <span class="live-dot"></span>
+        LIVE MONITORING
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+<!-- =====================================================
+     CURRENT STATUS
+===================================================== -->
+
+<section class="main-status">
+
+    <div class="status-label">
+        CURRENT DRIVER STATUS
+    </div>
+
+    <h2 id="status" class="normal">
+        ATTENTIVE
+    </h2>
+
+    <div class="risk">
+        Risk Level:
+        <span id="riskLevel" class="normal">
+            LOW
+        </span>
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     REAL-TIME BIOMETRIC
+===================================================== -->
+
+<div class="section-title">
+
+    <h2>Real-Time Biometric Analysis</h2>
+
+    <span>Live AI Processing</span>
+
+</div>
+
+
+<section class="cards">
+
+    <div class="card">
+
+        <div class="card-top">
+            <h3>EYE ASPECT RATIO</h3>
+            <div class="icon">👁</div>
+        </div>
+
+        <div class="value" id="ear">
+            0.000
+        </div>
+
+        <div class="status-sub">
+            Eye closure monitoring
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-top">
+            <h3>MOUTH ASPECT RATIO</h3>
+            <div class="icon">👄</div>
+        </div>
+
+        <div class="value" id="mar">
+            0.000
+        </div>
+
+        <div class="status-sub">
+            Yawning detection
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-top">
+            <h3>HEAD POSITION</h3>
+            <div class="icon">🧭</div>
+        </div>
+
+        <div class="value" id="headPosition">
+            ATTENTIVE
+        </div>
+
+        <div class="status-sub">
+            Head pose estimation
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-top">
+            <h3>LIGHTING</h3>
+            <div class="icon">💡</div>
+        </div>
+
+        <div class="value" id="lighting">
+            NORMAL
+        </div>
+
+        <div class="status-sub">
+            Automatic enhancement
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     SESSION ANALYTICS
+===================================================== -->
+
+<div class="section-title">
+
+    <h2>Session Analytics</h2>
+
+    <span>Current monitoring session</span>
+
+</div>
+
+
+<section class="analytics">
+
+    <div class="analytics-card">
+
+        <div class="analytics-title">
+            FATIGUE SCORE
+        </div>
+
+        <div class="fatigue-header">
+
+            <div class="analytics-value">
+                <span id="fatigueScore">0</span>%
+            </div>
+
+            <span id="fatigueLevel" class="normal">
+                LOW
+            </span>
+
+        </div>
+
+        <div class="progress">
+
+            <div id="fatigueBar" class="progress-bar"></div>
+
+        </div>
+
+    </div>
+
+
+    <div class="analytics-card">
+
+        <div class="analytics-title">
+            SESSION TIME
+        </div>
+
+        <div class="analytics-value" id="sessionTime">
+            00:00
+        </div>
+
+        <div class="analytics-small">
+            Active monitoring duration
+        </div>
+
+    </div>
+
+
+    <div class="analytics-card">
+
+        <div class="analytics-title">
+            YAWN EVENTS
+        </div>
+
+        <div class="analytics-value" id="yawnCount">
+            0
+        </div>
+
+        <div class="analytics-small">
+            Detected this session
+        </div>
+
+    </div>
+
+
+    <div class="analytics-card">
+
+        <div class="analytics-title">
+            DROWSINESS EVENTS
+        </div>
+
+        <div class="analytics-value" id="drowsinessCount">
+            0
+        </div>
+
+        <div class="analytics-small">
+            Confirmed events
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     DETECTION STATUS
+===================================================== -->
+
+<div class="section-title">
+
+    <h2>Detection & System Status</h2>
+
+    <span>Computer Vision Analysis</span>
+
+</div>
+
+
+<section class="status-grid">
+
+    <div class="status-box">
+        <h3>DROWSINESS</h3>
+        <div id="drowsiness" class="status-value normal">NO</div>
+        <div class="status-sub">Eye closure analysis</div>
+    </div>
+
+
+    <div class="status-box">
+        <h3>YAWNING</h3>
+        <div id="yawning" class="status-value normal">NO</div>
+        <div class="status-sub">Mouth + jaw analysis</div>
+    </div>
+
+
+    <div class="status-box">
+        <h3>DISTRACTION</h3>
+        <div id="distraction" class="status-value normal">NO</div>
+        <div class="status-sub">Head movement analysis</div>
+    </div>
+
+
+    <div class="status-box">
+        <h3>FACE DETECTION</h3>
+        <div id="face" class="status-value normal">DETECTED</div>
+        <div class="status-sub">MediaPipe Face Mesh</div>
+    </div>
+
+
+    <div class="status-box">
+        <h3>GLASSES SUPPORT</h3>
+        <div id="glasses" class="status-value normal">SUPPORTED</div>
+        <div class="status-sub">Eye landmark tracking</div>
+    </div>
+
+
+    <div class="status-box">
+        <h3>MASK SUPPORT</h3>
+        <div id="mask" class="status-value normal">SUPPORTED</div>
+        <div class="status-sub">Jaw-based analysis</div>
+    </div>
+
+
+    <div class="status-box">
+        <h3>AUDIO ALERT</h3>
+        <div id="alert" class="status-value normal">OFF</div>
+        <div class="status-sub">Warning system</div>
+    </div>
+
+
+    <div class="status-box">
+        <h3>DISTRACTION EVENTS</h3>
+        <div id="distractionCount" class="status-value normal">0</div>
+        <div class="status-sub">Confirmed this session</div>
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     AI STATUS
+===================================================== -->
+
+<div class="section-title">
+
+    <h2>AI Behavior Classification</h2>
+
+    <span>Random Forest + CV Fusion</span>
+
+</div>
+
+
+<section class="ai-panel">
+
+    <div class="ai-row">
+
+        <div class="ai-item">
+
+            <h3>AI BEHAVIOR</h3>
+
+            <div
+                id="aiBehavior"
+                class="ai-value normal">
+
+                ATTENTIVE
+
+            </div>
+
+        </div>
+
+
+        <div class="ai-item">
+
+            <h3>AI CONFIDENCE</h3>
+
+            <div
+                id="aiConfidence"
+                class="ai-value">
+
+                0%
+
+            </div>
+
+        </div>
+
+
+        <div class="ai-item">
+
+            <h3>JAW RATIO</h3>
+
+            <div
+                id="jawRatio"
+                class="ai-value">
+
+                0.000
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     ML ANALYTICS
+===================================================== -->
+
+<section class="ml-section">
+
+<div class="section-title">
+
+    <h2>Machine Learning Analytics</h2>
+
+    <span>Combined S01 + S02 Dataset</span>
+
+</div>
+
+
+<!-- MODEL METRICS -->
+
+<section class="ml-metrics">
+
+    <div class="metric-card">
+
+        <h3>ACCURACY</h3>
+
+        <div
+            id="mlAccuracy"
+            class="metric-value normal">
+
+            91.81%
+
+        </div>
+
+        <div class="metric-label">
+            Overall classification accuracy
+        </div>
+
+    </div>
+
+
+    <div class="metric-card">
+
+        <h3>PRECISION</h3>
+
+        <div
+            id="mlPrecision"
+            class="metric-value normal">
+
+            91.80%
+
+        </div>
+
+        <div class="metric-label">
+            Weighted precision
+        </div>
+
+    </div>
+
+
+    <div class="metric-card">
+
+        <h3>RECALL</h3>
+
+        <div
+            id="mlRecall"
+            class="metric-value normal">
+
+            91.81%
+
+        </div>
+
+        <div class="metric-label">
+            Weighted recall
+        </div>
+
+    </div>
+
+
+    <div class="metric-card">
+
+        <h3>F1 SCORE</h3>
+
+        <div
+            id="mlF1"
+            class="metric-value normal">
+
+            91.80%
+
+        </div>
+
+        <div class="metric-label">
+            Weighted F1 score
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- CHARTS -->
+
+<section class="charts-grid">
+
+
+    <!-- LIVE SIGNAL -->
+
+    <div class="chart-card full">
+
+        <div class="chart-title">
+
+            <h3>Live EAR & MAR Signal</h3>
+
+            <span>Real-time biometric trend</span>
+
+        </div>
+
+        <div class="chart-container">
+
+            <canvas id="liveChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- FEATURE IMPORTANCE -->
+
+    <div class="chart-card">
+
+        <div class="chart-title">
+
+            <h3>Feature Importance</h3>
+
+            <span>Random Forest</span>
+
+        </div>
+
+        <div class="chart-container">
+
+            <canvas id="featureChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- DISTRIBUTION -->
+
+    <div class="chart-card">
+
+        <div class="chart-title">
+
+            <h3>Behavior Distribution</h3>
+
+            <span>5,555 samples</span>
+
+        </div>
+
+        <div class="chart-container">
+
+            <canvas id="distributionChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- CONFUSION MATRIX -->
+
+    <div class="chart-card full">
+
+        <div class="chart-title">
+
+            <h3>Confusion Matrix</h3>
+
+            <span>Combined model test results</span>
+
+        </div>
+
+        <div class="confusion-wrapper">
+
+            <table class="confusion-table">
+
+                <thead>
+
+                    <tr>
+                        <th></th>
+                        <th>Attentive</th>
+                        <th>Drowsy</th>
+                        <th>Yawning</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <th>Attentive</th>
+
+                        <td id="cm00" class="high">
+                            339
+                        </td>
+
+                        <td id="cm01" class="low">
+                            19
+                        </td>
+
+                        <td id="cm02" class="low">
+                            20
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <th>Drowsy</th>
+
+                        <td id="cm10" class="low">
+                            15
+                        </td>
+
+                        <td id="cm11" class="high">
+                            358
+                        </td>
+
+                        <td id="cm12" class="low">
+                            6
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <th>Yawning</th>
+
+                        <td id="cm20" class="low">
+                            23
+                        </td>
+
+                        <td id="cm21" class="low">
+                            8
+                        </td>
+
+                        <td id="cm22" class="high">
+                            323
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+</section>
+
+
+<!-- =====================================================
+     EVENT
+===================================================== -->
+
+<section class="event-panel">
+
+    <div class="event-header">
+
+        <h2>Latest Detection Event</h2>
+
+        <span id="eventTime">
+            LIVE
+        </span>
+
+    </div>
+
+    <div class="event">
+
+        <div id="eventDot" class="event-dot"></div>
+
+        <div id="eventText" class="event-text">
+
+            Driver is attentive. No immediate safety risk detected.
+
+        </div>
+
+        <div id="eventStatus" class="event-time">
+            NORMAL
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer class="footer">
+
+    <strong>
+        AI-Based Driver Drowsiness & Distraction Detection System
+    </strong>
+
+    <br>
+
+    Computer Vision • Facial Landmark Analysis • EAR • MAR • Head Pose
+
+</footer>
+
+
+</main>
+
+
+<script>
+
+/* =====================================================
+   LIVE CHART
+===================================================== */
+
+const chartLabels = [];
+const earValues = [];
+const marValues = [];
+
+const liveChart =
+new Chart(
+    document.getElementById("liveChart"),
+    {
+        type:"line",
+
+        data:{
+            labels:chartLabels,
+
+            datasets:[
+
+                {
+                    label:"EAR",
+                    data:earValues,
+                    borderColor:"#38bdf8",
+                    backgroundColor:"rgba(56,189,248,.08)",
+                    tension:.35,
+                    fill:true,
+                    pointRadius:0
+                },
+
+                {
+                    label:"MAR",
+                    data:marValues,
+                    borderColor:"#f59e0b",
+                    backgroundColor:"rgba(245,158,11,.05)",
+                    tension:.35,
+                    fill:true,
+                    pointRadius:0
+                }
+
+            ]
+        },
+
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+
+            animation:false,
+
+            scales:{
+                x:{
+                    ticks:{
+                        color:"#64748b",
+                        maxTicksLimit:8
+                    },
+                    grid:{
+                        color:"rgba(148,163,184,.08)"
+                    }
+                },
+
+                y:{
+                    beginAtZero:true,
+                    suggestedMax:.9,
+
+                    ticks:{
+                        color:"#64748b"
+                    },
+
+                    grid:{
+                        color:"rgba(148,163,184,.08)"
+                    }
+                }
+            },
+
+            plugins:{
+                legend:{
+                    labels:{
+                        color:"#cbd5e1"
+                    }
+                }
+            }
+        }
+    }
+);
+
+
+/* =====================================================
+   FEATURE CHART
+===================================================== */
+
+let featureChart =
+new Chart(
+    document.getElementById("featureChart"),
+    {
+        type:"bar",
+
+        data:{
+            labels:[
+                "MAR",
+                "EAR",
+                "Jaw Ratio",
+                "Brightness"
+            ],
+
+            datasets:[{
+
+                label:"Importance (%)",
+
+                data:[
+                    28.64,
+                    25.20,
+                    23.55,
+                    22.61
+                ],
+
+                backgroundColor:[
+                    "#06b6d4",
+                    "#38bdf8",
+                    "#8b5cf6",
+                    "#f59e0b"
+                ],
+
+                borderRadius:7
+
+            }]
+        },
+
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+
+            plugins:{
+                legend:{
+                    display:false
+                }
+            },
+
+            scales:{
+
+                x:{
+                    ticks:{
+                        color:"#94a3b8"
+                    },
+                    grid:{
+                        display:false
+                    }
+                },
+
+                y:{
+                    beginAtZero:true,
+                    max:35,
+
+                    ticks:{
+                        color:"#94a3b8",
+                        callback:value => value + "%"
+                    },
+
+                    grid:{
+                        color:"rgba(148,163,184,.08)"
+                    }
+                }
+
+            }
+        }
+    }
+);
+
+
+/* =====================================================
+   DISTRIBUTION CHART
+===================================================== */
+
+let distributionChart =
+new Chart(
+    document.getElementById("distributionChart"),
+    {
+        type:"doughnut",
+
+        data:{
+
+            labels:[
+                "Attentive",
+                "Drowsy",
+                "Yawning"
+            ],
+
+            datasets:[{
+
+                data:[
+                    1889,
+                    1896,
+                    1770
+                ],
+
+                backgroundColor:[
+                    "#22c55e",
+                    "#ef4444",
+                    "#f59e0b"
+                ],
+
+                borderWidth:0
+
+            }]
+        },
+
+        options:{
+
+            responsive:true,
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{
+                    position:"bottom",
+
+                    labels:{
+                        color:"#cbd5e1",
+                        padding:15
+                    }
+                }
+
+            }
+
+        }
+    }
+);
+
+
+/* =====================================================
+   DASHBOARD UPDATE
+===================================================== */
+
+async function updateDashboard(){
+
+    try{
+
+        const response =
+            await fetch("/api/status");
+
+        const data =
+            await response.json();
+
+
+        const status =
+            document.getElementById("status");
+
+        status.innerText =
+            data.status || "UNKNOWN";
+
+
+        const risk =
+            document.getElementById("riskLevel");
+
+        risk.innerText =
+            data.risk_level || "LOW";
+
+
+        document.getElementById("ear")
+            .innerText =
+            Number(data.ear || 0)
+            .toFixed(3);
+
+
+        document.getElementById("mar")
+            .innerText =
+            Number(data.mar || 0)
+            .toFixed(3);
+
+
+        document.getElementById("headPosition")
+            .innerText =
+            data.head_position || "UNKNOWN";
+
+
+        document.getElementById("lighting")
+            .innerText =
+            data.lighting || "NORMAL";
+
+
+        const drowsiness =
+            document.getElementById("drowsiness");
+
+        drowsiness.innerText =
+            data.drowsiness ? "YES" : "NO";
+
+        drowsiness.className =
+            data.drowsiness
+            ? "status-value danger"
+            : "status-value normal";
+
+
+        const yawning =
+            document.getElementById("yawning");
+
+        yawning.innerText =
+            data.yawning ? "YES" : "NO";
+
+        yawning.className =
+            data.yawning
+            ? "status-value warning"
+            : "status-value normal";
+
+
+        const distraction =
+            document.getElementById("distraction");
+
+        distraction.innerText =
+            data.distraction ? "YES" : "NO";
+
+        distraction.className =
+            data.distraction
+            ? "status-value danger"
+            : "status-value normal";
+
+
+        const face =
+            document.getElementById("face");
+
+        face.innerText =
+            data.face
+            ? "DETECTED"
+            : "NOT DETECTED";
+
+        face.className =
+            data.face
+            ? "status-value normal"
+            : "status-value danger";
+
+
+        document.getElementById("glasses")
+            .innerText =
+            data.glasses || "SUPPORTED";
+
+
+        document.getElementById("mask")
+            .innerText =
+            data.mask || "SUPPORTED";
+
+
+        const alert =
+            document.getElementById("alert");
+
+        alert.innerText =
+            data.alert ? "ON" : "OFF";
+
+        alert.className =
+            data.alert
+            ? "status-value danger"
+            : "status-value normal";
+
+
+        document.getElementById("yawnCount")
+            .innerText =
+            data.yawn_count || 0;
+
+
+        document.getElementById("drowsinessCount")
+            .innerText =
+            data.drowsiness_count || 0;
+
+
+        document.getElementById("distractionCount")
+            .innerText =
+            data.distraction_count || 0;
+
+
+        document.getElementById("sessionTime")
+            .innerText =
+            data.session_time || "00:00";
+
+
+        const score =
+            Number(data.fatigue_score || 0);
+
+        document.getElementById("fatigueScore")
+            .innerText =
+            score.toFixed(0);
+
+
+        const level =
+            document.getElementById("fatigueLevel");
+
+        level.innerText =
+            data.fatigue_level || "LOW";
+
+        level.className =
+            getClass(data.fatigue_level);
+
+
+        const bar =
+            document.getElementById("fatigueBar");
+
+        bar.style.width =
+            Math.min(score,100) + "%";
+
+        bar.style.background =
+            getBarColor(score);
+
+
+        /* AI INFORMATION */
+
+        const aiBehavior =
+            document.getElementById("aiBehavior");
+
+        aiBehavior.innerText =
+            data.ai_prediction || "ATTENTIVE";
+
+        aiBehavior.className =
+            "ai-value " +
+            getClass(
+                data.ai_prediction === "DROWSY"
+                ? "HIGH"
+                : data.ai_prediction === "YAWNING"
+                ? "MEDIUM"
+                : "LOW"
+            );
+
+
+        document.getElementById("aiConfidence")
+            .innerText =
+            Number(data.ai_confidence || 0)
+            .toFixed(1) + "%";
+
+
+        document.getElementById("jawRatio")
+            .innerText =
+            Number(data.jaw_ratio || 0)
+            .toFixed(3);
+
+
+        /* MAIN COLORS */
+
+        status.className =
+            getClass(
+                data.drowsiness ||
+                data.distraction
+                ? "HIGH"
+                : data.yawning
+                ? "MEDIUM"
+                : "LOW"
+            );
+
+
+        risk.className =
+            getClass(data.risk_level);
+
+
+        /* LIVE CHART */
+
+        const now =
+            new Date().toLocaleTimeString();
+
+        chartLabels.push(now);
+        earValues.push(Number(data.ear || 0));
+        marValues.push(Number(data.mar || 0));
+
+        if(chartLabels.length > 40){
+
+            chartLabels.shift();
+            earValues.shift();
+            marValues.shift();
+
+        }
+
+        liveChart.update();
+
+
+        updateEvent(data);
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Dashboard API Error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ML API
+===================================================== */
+
+async function loadMLResults(){
+
+    try{
+
+        const response =
+            await fetch("/api/ml-results");
+
+        const data =
+            await response.json();
+
+
+        document.getElementById("mlAccuracy")
+            .innerText =
+            Number(data.accuracy || 0)
+            .toFixed(2) + "%";
+
+
+        document.getElementById("mlPrecision")
+            .innerText =
+            Number(data.precision || 0)
+            .toFixed(2) + "%";
+
+
+        document.getElementById("mlRecall")
+            .innerText =
+            Number(data.recall || 0)
+            .toFixed(2) + "%";
+
+
+        document.getElementById("mlF1")
+            .innerText =
+            Number(data.f1 || 0)
+            .toFixed(2) + "%";
+
+
+        /* FEATURE IMPORTANCE */
+
+        if(
+            data.features &&
+            data.feature_importance
+        ){
+
+            featureChart.data.labels =
+                data.features.map(
+                    feature =>
+                    feature
+                    .replace("mar","MAR")
+                    .replace("ear","EAR")
+                    .replace("jaw_ratio","Jaw Ratio")
+                    .replace("brightness","Brightness")
+                );
+
+            featureChart.data.datasets[0].data =
+                data.feature_importance;
+
+            featureChart.update();
+
+        }
+
+
+        /* DISTRIBUTION */
+
+        if(data.distribution){
+
+            distributionChart.data.datasets[0].data =
+                data.distribution;
+
+            distributionChart.update();
+
+        }
+
+
+        /* CONFUSION MATRIX */
+
+        if(data.confusion_matrix){
+
+            const cm =
+                data.confusion_matrix;
+
+            for(let i=0;i<3;i++){
+
+                for(let j=0;j<3;j++){
+
+                    const cell =
+                        document.getElementById(
+                            "cm" + i + j
+                        );
+
+                    if(cell){
+
+                        cell.innerText =
+                            cm[i][j];
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(
+            "ML API Error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   COLOR CLASS
+===================================================== */
+
+function getClass(level){
+
+    if(
+        level === "HIGH" ||
+        level === "DANGER" ||
+        level === "DROWSY"
+    ){
+
+        return "danger";
+
+    }
+
+    if(
+        level === "MEDIUM" ||
+        level === "MODERATE" ||
+        level === "YAWNING"
+    ){
+
+        return "warning";
+
+    }
+
+    return "normal";
+}
+
+
+/* =====================================================
+   BAR COLOR
+===================================================== */
+
+function getBarColor(score){
+
+    if(score >= 60){
+        return "#ef4444";
+    }
+
+    if(score >= 30){
+        return "#f59e0b";
+    }
+
+    return "#22c55e";
+}
+
+
+/* =====================================================
+   EVENT MESSAGE
+===================================================== */
+
+function updateEvent(data){
+
+    const text =
+        document.getElementById("eventText");
+
+    const status =
+        document.getElementById("eventStatus");
+
+    const dot =
+        document.getElementById("eventDot");
+
+    const time =
+        document.getElementById("eventTime");
+
+
+    time.innerText =
+        new Date().toLocaleTimeString();
+
+
+    if(data.drowsiness){
+
+        text.innerText =
+            "Drowsiness detected. Immediate driver alert is active.";
+
+        status.innerText =
+            "DROWSINESS";
+
+        status.className =
+            "event-time danger";
+
+        dot.style.background =
+            "#ef4444";
+
+    }
+
+    else if(data.distraction){
+
+        text.innerText =
+            "Driver distraction detected. Head position indicates attention deviation.";
+
+        status.innerText =
+            "DISTRACTION";
+
+        status.className =
+            "event-time danger";
+
+        dot.style.background =
+            "#ef4444";
+
+    }
+
+    else if(data.yawning){
+
+        text.innerText =
+            "Yawning detected. Possible fatigue indicator.";
+
+        status.innerText =
+            "YAWNING";
+
+        status.className =
+            "event-time warning";
+
+        dot.style.background =
+            "#f59e0b";
+
+    }
+
+    else if(
+        data.fatigue_level === "HIGH"
+    ){
+
+        text.innerText =
+            "High fatigue level detected during the current session.";
+
+        status.innerText =
+            "HIGH FATIGUE";
+
+        status.className =
+            "event-time danger";
+
+        dot.style.background =
+            "#ef4444";
+
+    }
+
+    else if(
+        data.fatigue_level === "MODERATE"
+    ){
+
+        text.innerText =
+            "Moderate fatigue level detected. Continue monitoring.";
+
+        status.innerText =
+            "MODERATE";
+
+        status.className =
+            "event-time warning";
+
+        dot.style.background =
+            "#f59e0b";
+
+    }
+
+    else if(!data.face){
+
+        text.innerText =
+            "Driver face is not currently detected.";
+
+        status.innerText =
+            "NO FACE";
+
+        status.className =
+            "event-time danger";
+
+        dot.style.background =
+            "#ef4444";
+
+    }
+
+    else{
+
+        text.innerText =
+            "Driver is attentive. No immediate safety risk detected.";
+
+        status.innerText =
+            "NORMAL";
+
+        status.className =
+            "event-time normal";
+
+        dot.style.background =
+            "#22c55e";
+
+    }
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+loadMLResults();
+updateDashboard();
+
+
+/* =====================================================
+   REFRESH
+===================================================== */
+
+setInterval(
+    updateDashboard,
+    500
+);
+
+</script>
+
+</body>
+</html>
